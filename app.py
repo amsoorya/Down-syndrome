@@ -1,6 +1,3 @@
-!pip install streamlit==1.31.0 tensorflow==2.15.0 opencv-python-headless==4.9.0.80 numpy==1.24.3 Pillow==10.2.0 plotly==5.18.0 pandas==2.1.4
-
-
 import streamlit as st
 import tensorflow as tf
 from tensorflow import keras
