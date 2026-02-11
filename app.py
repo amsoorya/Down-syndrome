@@ -6,7 +6,9 @@ from PIL import Image
 
 st.set_page_config(page_title="Medical Image Classifier")
 
-st.title("Pretrained Image Classifier (ResNet-18)")
+st.title("Fetal Down Syndrome Screening System")
+st.caption("AI-assisted ultrasound analysis demo")
+
 
 # -----------------------
 # Load pretrained model
