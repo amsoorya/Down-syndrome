@@ -1,18 +1,12 @@
 import streamlit as st
 import torch
-import torchvision.transforms as transforms
 from torchvision.models import resnet18, ResNet18_Weights
 from PIL import Image
-
-st.set_page_config(page_title="Medical Image Classifier")
 
 st.title("Fetal Down Syndrome Screening System")
 st.caption("AI-assisted ultrasound analysis demo")
 
 
-# -----------------------
-# Load pretrained model
-# -----------------------
 @st.cache_resource
 def load_model():
     weights = ResNet18_Weights.DEFAULT
@@ -22,43 +16,23 @@ def load_model():
 
 model, weights = load_model()
 
-# -----------------------
-# Image preprocessing
-# -----------------------
-preprocess = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize(
-        mean=weights.meta["mean"],
-        std=weights.meta["std"]
-    ),
-])
+# FIXED LINE
+transform = weights.transforms()
 
-# -----------------------
-# Upload image
-# -----------------------
-uploaded = st.file_uploader(
-    "Upload an image",
-    type=["jpg", "jpeg", "png"]
-)
+uploaded = st.file_uploader("Upload image")
 
 if uploaded:
-
     image = Image.open(uploaded).convert("RGB")
-    st.image(image, caption="Uploaded Image")
+    st.image(image)
 
-    input_tensor = preprocess(image).unsqueeze(0)
+    input_tensor = transform(image).unsqueeze(0)
 
     with torch.no_grad():
-        outputs = model(input_tensor)
-        probs = torch.nn.functional.softmax(outputs[0], dim=0)
+        output = model(input_tensor)
+        probs = torch.nn.functional.softmax(output[0], dim=0)
 
-    top5_prob, top5_catid = torch.topk(probs, 5)
+    top_prob, top_cat = torch.topk(probs, 3)
 
-    st.subheader("Top Predictions")
-
-    for i in range(5):
-        label = weights.meta["categories"][top5_catid[i]]
-        confidence = top5_prob[i].item() * 100
-        st.write(f"{label}: {confidence:.2f}%")
+    for i in range(3):
+        label = weights.meta["categories"][top_cat[i]]
+        st.write(f"{label}: {top_prob[i].item()*100:.2f}%")
